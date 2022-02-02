@@ -1,13 +1,12 @@
 import java.util.*;
+import java.io.FileNotFoundException;
 
 public class Main {
 
     //SCANNER - USER INPUT
     public static Scanner input = new Scanner(System.in);
 
-    //Settings
-    private static int wordSize = 10000;
-
+    //HARDWARE
     //Hypo main memory
     private static long[] hypoMemory; //Each word should contain a 6 integer value
 
@@ -37,23 +36,21 @@ public class Main {
 
         System.out.printf("%nSystem initialized%n");
 
-        System.out.printf("%n$ Enter program file name >>> ");
-        String fileName = input.nextLine();
+        AbsoluteLoader absoluteLoader = new AbsoluteLoader("programs/test.txt");
+        String result = Integer.toString(absoluteLoader.load());
 
-        System.out.printf("%n$ fileName value: %s%n", fileName);
-
-        dumpMemory(fileName, 0, 20);
+        dumpMemory(result, 0, 20);
 
     }
 
 
     //Initialize the system
     public static void initializeSystem() {
-        hypoMemory = new long[wordSize];
+        hypoMemory = new long[SystemConstants.WORDSIZE];
         mar = 0;
         mbr = 0;
         clock = 0;
-        gpr = new long[8];
+        gpr = new long[SystemConstants.GPRSIZE];
         ir = 0;
         psr = 0;
         pc = 0;
@@ -124,6 +121,16 @@ public class Main {
 
         System.out.printf("========================================================================================%n%n");
 
+    }
+
+
+    //Accessors & Mutators
+    public static void setHypoMemory(long location, long instruction) {
+        if (location < hypoMemory.length) {
+            hypoMemory[(int)location] = instruction;
+        } else {
+            System.out.printf("%n$ Location %d is greater than the word size and cannot be accessed!", location);
+        }
     }
 
 }
