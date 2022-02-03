@@ -24,7 +24,7 @@ public class Main {
     private static long ir; //Instruction register
     private static long psr; //Processor status register
     private static long pc; //Program counter
-    private static long sp;
+    private static long sp; 
 
 
     //Main method
@@ -33,13 +33,16 @@ public class Main {
         System.out.printf("%n%n[HYPO]");
 
         initializeSystem();
+        System.out.printf("%nSystem initialized...%n");
 
-        System.out.printf("%nSystem initialized%n");
+        AbsoluteLoader absoluteLoader = new AbsoluteLoader();
+        pc = absoluteLoader.load(); //Set program counter to the AL return value
 
-        AbsoluteLoader absoluteLoader = new AbsoluteLoader("programs/test.txt");
-        String result = Integer.toString(absoluteLoader.load());
+        System.out.printf("%n$ Program counter set to %d...%n", pc);
 
-        dumpMemory(result, 0, 20);
+        dumpMemory("Dump after PC set", 0, 100);
+
+        //CPU();
 
     }
 

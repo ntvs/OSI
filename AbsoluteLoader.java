@@ -28,7 +28,7 @@ public class AbsoluteLoader {
     }
 
 
-    public int load() {
+    public long load() {
         
         try {
             this.fileReader = new Scanner(programFile);
@@ -51,18 +51,20 @@ public class AbsoluteLoader {
                 if (addr >= 0) {
 
                     if(instruction > 999999) {
-                        System.out.printf("%n$ The instruction at line %d is longer than 6 digits and was not loaded.%n", lineCount);
+                        System.out.printf("%n$ The instruction at line %d is longer than 6 digits and the program was not loaded.%n", lineCount);
                         return SystemConstants.ERROR;
                     }
 
                     Main.setHypoMemory(addr, instruction);
+
                 } else if(addr < 0) {
-                    System.out.printf("%n$ Negative memory addresses are not allowed and the instruction at line %d was not loaded.%n", lineCount);
-                    return SystemConstants.ERROR;
+                    System.out.printf("%n$ End of program reached and program loaded successfully.%n");
+                    return instruction;
                 }
 
             } else {
-                System.out.printf("%n$ Line %d is not formatted correctly.%n", lineCount);
+                System.out.printf("%n$ Line %d is not formatted correctly and the program was not loaded.%n", lineCount);
+                return SystemConstants.ERROR;
             }
 
             lineCount++;
