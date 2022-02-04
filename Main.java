@@ -35,14 +35,18 @@ public class Main {
         initializeSystem();
         System.out.printf("%nSystem initialized...%n");
 
-        AbsoluteLoader absoluteLoader = new AbsoluteLoader();
+        AbsoluteLoader absoluteLoader = new AbsoluteLoader("programs/loop.txt");
         pc = absoluteLoader.load(); //Set program counter to the AL return value
 
         System.out.printf("%n$ Program counter set to %d...%n", pc);
 
         dumpMemory("Dump after PC set", 0, 100);
 
-        //CPU();
+        CPU cpu = new CPU();
+        cpu.cycle();
+
+        dumpMemory("Dump after 1 CPU cycle", 0, 100);
+        System.out.printf("%n%nMAR: %d, MBR: %d, IR: %d%n%n", mar, mbr, ir);
 
     }
 
@@ -122,18 +126,63 @@ public class Main {
 
         System.out.printf("%n");
 
-        System.out.printf("========================================================================================%n%n");
+        System.out.printf("========================================================================================%n");
 
     }
 
 
-    //Accessors & Mutators
+    //Accessors
+    public static long getHypoMemory(long location) {
+        if (location < hypoMemory.length) {
+            return hypoMemory[(int)location];
+        } else {
+            System.out.printf("%n$ Location %d is greater than the word size and cannot be accessed!", location);
+            return SystemConstants.ERROR;
+        }
+    }
+
+    public static long getMBR() {
+        return mbr;
+    }
+    public static long getMAR() {
+        return mar;
+    }
+    public static long getIR() {
+        return ir;
+    }
+
+    public static long getPC() {
+        return pc;
+    }
+
+    //Mutators
     public static void setHypoMemory(long location, long instruction) {
         if (location < hypoMemory.length) {
             hypoMemory[(int)location] = instruction;
         } else {
             System.out.printf("%n$ Location %d is greater than the word size and cannot be accessed!", location);
         }
+    }
+
+    public static void setMBR(long word) {
+        mbr = word;
+    }
+    public static void setMAR(long word) {
+        mar = word;
+    }
+    public static void setIR(long word) {
+        ir = word;
+    }
+
+    public static void setPC(long addr) {
+        if (addr < hypoMemory.length) {
+            pc = addr;
+        } else {
+            System.out.printf("%n$ PC cannot be set to %d.", addr);
+        }   
+    }
+    public static void incrementPC() {
+        setPC(pc+1);
     }
 
 }
