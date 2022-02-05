@@ -6,6 +6,9 @@ public class Main {
     //SCANNER - USER INPUT
     public static Scanner input = new Scanner(System.in);
 
+    //Machine error variable (Separate from CPU error variable)
+    private static long error;
+
     //HARDWARE
     //Hypo main memory
     private static long[] hypoMemory; //Each word should contain a 6 integer value
@@ -35,24 +38,31 @@ public class Main {
         initializeSystem();
         System.out.printf("%nSystem initialized...%n");
 
-        AbsoluteLoader absoluteLoader = new AbsoluteLoader("programs/loop.txt");
-        pc = absoluteLoader.load(); //Set program counter to the AL return value
+        AbsoluteLoader absoluteLoader = new AbsoluteLoader();
+        setPC(absoluteLoader.load()); //Set program counter to the AL return value 
 
-        System.out.printf("%n$ Program counter set to %d...%n", pc);
+        if (pc > -1) {
+            System.out.printf("%n$ Program counter set to %d...%n", pc);
 
-        dumpMemory("Dump after PC set", 0, 100);
+            dumpMemory("Dump after loading user program", 0, 100);
 
-        CPU cpu = new CPU();
-        cpu.cycle();
+            CPU cpu = new CPU();
+            cpu.cycle();
 
-        dumpMemory("Dump after 1 CPU cycle", 0, 100);
-        System.out.printf("%n%nMAR: %d, MBR: %d, IR: %d%n%n", mar, mbr, ir);
+            String dumpAfterX = String.format("Dump after %d CPU cycle(s)", cpu.getCycles());
+            dumpMemory(dumpAfterX, 0, 100);
+
+            System.out.printf("%nMAR: %d, MBR: %d, IR: %d%n", mar, mbr, ir);
+        }
+
+        System.out.printf("%n%n");
 
     }
 
 
     //Initialize the system
     public static void initializeSystem() {
+        error = 0;
         hypoMemory = new long[SystemConstants.WORDSIZE];
         mar = 0;
         mbr = 0;
@@ -136,8 +146,19 @@ public class Main {
         if (location < hypoMemory.length) {
             return hypoMemory[(int)location];
         } else {
-            System.out.printf("%n$ Location %d is greater than the word size and cannot be accessed!", location);
-            return SystemConstants.ERROR;
+            error = SystemConstants.ERROR_INVALID_ADDRESS;
+            System.out.printf("%n$ ERROR %d: Location %d is greater than the word size and cannot be accessed!%n", error, location);
+            return error;
+        }
+    }
+
+    public static long getGPR(long register) {
+        if (register < gpr.length) {
+            return gpr[(int)register];
+        } else {
+            error = SystemConstants.ERROR_INVALID_ADDRESS;
+            System.out.printf("%n$ ERROR %d: GPR %d does not exist and cannot be accessed!%n", error, register);
+            return error;
         }
     }
 
@@ -150,17 +171,34 @@ public class Main {
     public static long getIR() {
         return ir;
     }
+    public static long getSP() {
+        return sp;
+    }
 
     public static long getPC() {
         return pc;
     }
 
     //Mutators
+    public static void setError(long code) {
+        error = code;
+    }
+    
     public static void setHypoMemory(long location, long instruction) {
         if (location < hypoMemory.length) {
             hypoMemory[(int)location] = instruction;
         } else {
-            System.out.printf("%n$ Location %d is greater than the word size and cannot be accessed!", location);
+            error = SystemConstants.ERROR_INVALID_ADDRESS;
+            System.out.printf("%n$ ERROR %d: Location %d is greater than the word size and cannot be accessed!%n", error, location);
+        }
+    }
+
+    public static void setGPR(long register, long value) {
+        if (register < gpr.length) {
+            gpr[(int)register] = value;
+        } else {
+            error = SystemConstants.ERROR_INVALID_ADDRESS;
+            System.out.printf("%n$ ERROR %d: GPR %d does not exist and cannot be set!%n", error, register);
         }
     }
 
@@ -175,14 +213,23 @@ public class Main {
     }
 
     public static void setPC(long addr) {
-        if (addr < hypoMemory.length) {
+        if (addr < SystemConstants.VALID_PROGRAM_AREA && addr > -1) {
             pc = addr;
         } else {
-            System.out.printf("%n$ PC cannot be set to %d.", addr);
+            error = SystemConstants.ERROR_INVALID_ADDRESS;
+            pc = error;
+            System.out.printf("%n$ ERROR %d: PC cannot be set to %d.%n", error, addr);
         }   
     }
     public static void incrementPC() {
         setPC(pc+1);
+    }
+
+    public static void incrementClock(long time) {
+        clock += time;
+    } 
+    public static void incrementClock() {
+        incrementClock(1);
     }
 
 }
