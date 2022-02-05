@@ -24,6 +24,8 @@ public class CPU {
     public void cycle() {
 
         //Cycle the CPU until state is set to halt or an error is set
+        //Original condition: !halt && error >= 0
+        //Debugging condition: !halt && error >= 0 && cycles < 1   <- specify the # of cycles you want
         while (!halt && error >= 0) {
 
             updateRegisters();
@@ -48,15 +50,18 @@ public class CPU {
                         break;
 
                     case 1: //add
+                        //Set value 1
                         status = fetchOperand(operands[1], operands[2], 1, 1);
                         if (status < 0) {
                             break;
                         }
+                        //Set value 2
                         status = fetchOperand(operands[3], operands[4], 2, 2);
                         if (status < 0) {
                             break;
                         }
                         
+                        //Add both values
                         result = this.op1Value + this.op2Value;
 
                         //If op1Mode = register mode
@@ -325,13 +330,20 @@ public class CPU {
         switch((int)mode) {
             case 1: //register mode
                 setOpAddress(operandAddr, -200); //Set the specified op address var to a negative num
+                
+                //
                 setOpValue(operandValue, Main.getGPR(gpr)); //Set the specified op value var to the value that is in the specified GPR
                 break;
 
-            case 2: //register deferred mode (Op addr in GPR and value in memory)
+            case 2: //register deferred mode - "Op addr in GPR and value in memory"
+                
+                //In this case, there is something inside the GPR specified by the var gpr
+                //Retrieve that value
+                //Put it inside op address 1 or 2
+                //Is it possible to store a value in the GPR beyond 2999?
                 setOpAddress(operandAddr, Main.getGPR(gpr));
 
-                if (isValidGPR(getOpAddress(operandAddr))) {
+                if (Main.isValidProgramArea(getOpAddress(operandAddr))) {
                     setOpValue(operandValue, Main.getHypoMemory(operandAddr));
                 } else {
                     this.error = SystemConstants.ERROR_INVALID_ADDRESS;
@@ -341,9 +353,13 @@ public class CPU {
                 break;
 
             case 3: //autoincrement mode (Op addr in GPR and value in memory)
+                
+                //In this case, there is something inside the GPR specified by the var gpr
+                //Retrieve that value
+                //Put it inside op address 1 or 2
                 setOpAddress(operandAddr, Main.getGPR(gpr));
 
-                if (isValidGPR(getOpAddress(operandAddr))) {
+                if (Main.isValidProgramArea(getOpAddress(operandAddr))) {
                     setOpValue(operandValue, Main.getHypoMemory(getOpAddress(operandAddr)));
 
                     Main.setGPR(gpr, (Main.getGPR(gpr))+1);
@@ -357,9 +373,12 @@ public class CPU {
             case 4: //autodecrement mode 
                 Main.setGPR(gpr, (Main.getGPR(gpr))-1); //decrement register value by 1
 
+                //In this case, there is something inside the GPR specified by the var gpr
+                //Retrieve that value
+                //Put it inside op address 1 or 2
                 setOpAddress(operandAddr, Main.getGPR(gpr)); //Set address var 1 or 2 to the contents of said GPR
 
-                if (isValidGPR(getOpAddress(operandAddr))) {
+                if (Main.isValidProgramArea(getOpAddress(operandAddr))) {
                     
                     setOpValue(operandValue, Main.getHypoMemory(getOpAddress(operandAddr)));
 
@@ -369,22 +388,37 @@ public class CPU {
                 }
                 break;
 
-            case 5: //direct mode - Op address is in the instruction that is in the program counter
+            case 5: //direct mode - "Op address is in the instruction that is in the program counter"
                 //Do need to check if PC value is valid because validation is already performed when updating the PC value
+                
+                //In this case, the PC points to a memory location
+                //Retrieve the contents of that memory location
+                //Put it inside op address 1 or 2
                 setOpAddress(operandAddr, Main.getHypoMemory(Main.getPC()));
-                Main.incrementPC();
+                Main.incrementPC(); // -> make sure the PC is moved forward since it should always point to the next place
 
-                if (isValidGPR(getOpAddress(operandAddr))) {
+                //When in fetch mode 5, the assumption is that the
+                //location specified by the PC contains another memory location... 
+                if (Main.isValidProgramArea(getOpAddress(operandAddr))) {
                     setOpValue(operandValue, Main.getHypoMemory(getOpAddress(operandAddr)));
                 } else {
                     this.error = SystemConstants.ERROR_INVALID_ADDRESS;
-                    System.out.printf("%n$ ERROR %d INVALID ADDRESS: GPR %d is invalid in case 5.%n", error, operandAddr);
+                    System.out.printf("%n$ ERROR %d INVALID ADDRESS: Op address %d contains %d in case 5.%n", error, operandAddr, getOpAddress(operandAddr));
                 }
                 break;
 
-            case 6: //immediate mode - Op value is in the instruction
+            case 6: //immediate mode - "Op value is in the instruction"
                 //Do need to check if PC value is valid because validation is already performed when updating the PC value
                 setOpAddress(operandAddr, -300);
+
+                //In this case, the program counter contains a memory location
+                //Go to that memory location and retrieve the contents of what is stored there
+                //Place it inside op value 1 or 2
+
+                //When using mode 6, the assumption is that the
+                //location specified by the PC contains a value
+                //This is why we do not need to check if that number is
+                //in the valid program area, as it is a number and not an address
                 setOpValue(operandValue, Main.getHypoMemory(Main.getPC()));
                 Main.incrementPC();
                 break;
@@ -442,7 +476,7 @@ public class CPU {
 
     //Boolean methods
     public boolean isValidGPR(long gpr) {
-        return gpr >= 0 || gpr <= 8;
+        return gpr >= 0 && gpr <= 8;
     }
 
 }

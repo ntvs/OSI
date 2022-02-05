@@ -143,11 +143,11 @@ public class Main {
 
     //Accessors
     public static long getHypoMemory(long location) {
-        if (location < hypoMemory.length) {
+        if (location < hypoMemory.length && location > -1) {
             return hypoMemory[(int)location];
         } else {
             error = SystemConstants.ERROR_INVALID_ADDRESS;
-            System.out.printf("%n$ ERROR %d: Location %d is greater than the word size and cannot be accessed!%n", error, location);
+            System.out.printf("%n$ ERROR %d: Location %d is greater than the word size or negative and cannot be accessed!%n", error, location);
             return error;
         }
     }
@@ -185,7 +185,7 @@ public class Main {
     }
     
     public static void setHypoMemory(long location, long instruction) {
-        if (location < hypoMemory.length) {
+        if (location < hypoMemory.length && location > -1) {
             hypoMemory[(int)location] = instruction;
         } else {
             error = SystemConstants.ERROR_INVALID_ADDRESS;
@@ -230,6 +230,11 @@ public class Main {
     } 
     public static void incrementClock() {
         incrementClock(1);
+    }
+
+    //Boolean methods
+    public static boolean isValidProgramArea(long addr) {
+        return addr < SystemConstants.VALID_PROGRAM_AREA+1 && addr > -1;
     }
 
 }

@@ -36,6 +36,12 @@ Created:
     - fetchOperand() method that:
         1. Manipulates the values in a set of variables. These variables mimmick the values and addresses of op1 and op2 in a real machine
         2. Does this based on the mode of each op. Each op is made up of two digits, the mode in which it should be manipulated and a GPR value
+        - Misinterpretations:
+            - Case 2, 3, 4, 5: changed isValidGPR() to isValidProgramArea() since these modes assume the contents of operandAddr is an address and not a number
+            - The true use of this method is to set the operand values based on what the 5-6 digit instruction is saying... so think of it kind of as "setValue()"
+            - The cycle method then performs operations with these values
+            - The value of what the operands become relies on what the program counter is pointing to and which mode they are in according to the instruction
+            - It important to consider the value of the PC and how it changes when writing instructions for this reason
     - cycle() method that:
         1. Updates the registers
         2. Parses the operands from the instruction in memory
