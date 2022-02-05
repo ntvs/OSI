@@ -43,7 +43,7 @@ Created:
             - The value of what the operands become relies on what the program counter is pointing to and which mode they are in according to the instruction
             - It important to consider the value of the PC and how it changes when writing instructions for this reason
     - cycle() method that:
-        1. Updates the registers
+        1. Updates the registers and progresses the PC by 1
         2. Parses the operands from the instruction in memory
         3. Performs operations based on the 1 or 2 digit opcode in the operands array
         4. Repeats 1-3 until the CPU error variable is negative or the halt variable is true
