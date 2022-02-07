@@ -68,35 +68,46 @@ public class CPU {
 
                         //If op1Mode = register mode
                         if (operands[1] == SystemConstants.FETCH_REGISTER) {
+                            //Store the sum in the GPR specified by op1GPR
                             Main.setGPR(operands[2], result);
                         } else if (operands[1] == SystemConstants.FETCH_IMMEDIATE) {
+                            //Do not store the sum anywhere and report an error
                             this.error = SystemConstants.ERROR_IMMEDIATE_DESTINATION;
                             System.out.printf("%n$ ERROR %d IMMEDIATE DESTINATION: Destination operand cannot be the immediate value when adding.%n", error);
                         } else {
+                            //When in ANY other mode, store the sum in the address
+                            //specified in the op1Address variable
                             Main.setHypoMemory(this.op1Address, result);
                         }
                         Main.incrementClock(SystemConstants.TIME_ADD);
                         break;
 
                     case 2: //subtract
+                        //Set value 1
                         status = fetchOperand(operands[1], operands[2], 1, 1);
                         if (status < 0) {
                             break;
                         }
+                        //Set value 2
                         status = fetchOperand(operands[3], operands[4], 2, 2);
                         if (status < 0) {
                             break;
                         }
                         
+                        //Subtract value 2 from value 1
                         result = this.op1Value - this.op2Value;
 
                         //If op1Mode = register mode
                         if (operands[1] == SystemConstants.FETCH_REGISTER) {
+                            //Store the difference in the GPR specified by op1GPR
                             Main.setGPR(operands[2], result);
                         } else if (operands[1] == SystemConstants.FETCH_IMMEDIATE) {
+                            //Do not store the sum anywhere and report an error
                             this.error = SystemConstants.ERROR_IMMEDIATE_DESTINATION;
                             System.out.printf("%n$ ERROR %d IMMEDIATE DESTINATION: Destination operand cannot be the immediate value when subtracting.%n", error);
                         } else {
+                            //When in ANY other mode, store the sum in the address
+                            //specified in the op1Address variable
                             Main.setHypoMemory(this.op1Address, result);
                         }
                         Main.incrementClock(SystemConstants.TIME_SUBTRACT);
@@ -157,10 +168,12 @@ public class CPU {
                         break;
                     
                     case 5: //move
+                        //Set value 1
                         status = fetchOperand(operands[1], operands[2], 1, 1);
                         if (status < 0) {
                             break;
                         }
+                        //Set value 2
                         status = fetchOperand(operands[3], operands[4], 2, 2);
                         if (status < 0) {
                             break;
@@ -170,15 +183,36 @@ public class CPU {
 
                         //If op1Mode = register mode
                         if (operands[1] == SystemConstants.FETCH_REGISTER) {
+                            //Store value 1 in the GPR specified by op1GPR
                             Main.setGPR(operands[2], this.op1Value);
                         } else if (operands[1] == SystemConstants.FETCH_IMMEDIATE) {
+                            //Do not store value 1 anywhere and report an error
                             this.error = SystemConstants.ERROR_IMMEDIATE_DESTINATION;
                             System.out.printf("%n$ ERROR %d IMMEDIATE DESTINATION: Destination operand cannot be the immediate value when moving.%n", error);
                         } else {
+                            //When in ANY other mode, store value 1 in the address
+                            //specified in the op1Address variable
                             Main.setHypoMemory(this.op1Address, this.op1Value);
                         }
                         Main.incrementClock(SystemConstants.TIME_MOVE);
                         break;
+
+                    //BRANCH MODES 6-9
+                    // 
+                    // 6: Assumes no inputs - only looks at program counter
+                    //      - Do nothing and just go to the next line
+                    //
+                    // 7: Only looks at the value of operand 1 & PC
+                    //      - IF value 1 is negative and nonzero, reset the PC to a specified value
+                    //      - otherwise, skip the next line and proceed
+                    //
+                    // 8: Only looks at the value of operand 1 & PC
+                    //      - IF value 1 is positive and nonzero, reset the PC to a specified value
+                    //      - otherwise, skip the next line and proceed
+                    //
+                    // 8: Only looks at the value of operand 1 & PC
+                    //      - IF value 1 is ZERO, reset the PC to a specified value
+                    //      - otherwise, skip the next line and proceed
 
                     case 6: //branch/jump instruction
                         //Set the PC to the next value in the memory address that the PC points too
@@ -187,42 +221,63 @@ public class CPU {
                         break;
 
                     case 7: //branch on minus
+                        //Set value 1 and only value 1 - NOT both values
                         status = fetchOperand(operands[1], operands[2], 1, 1);
                         if (status < 0) {
                             break;
                         }
-
+                        
+                        //This assumes that the next line contains an address
+                        // If value 1 is negative and nonzero
                         if (this.op1Value < 0) {
+                            //Go to the next line and get that address
+                            //THEN set the PC to that address
                             Main.setPC(Main.getHypoMemory(Main.getPC()));
                         } else {
+                            //Otherwise, skip the next line and proceed
                             Main.incrementPC();
                         }
                         Main.incrementClock(SystemConstants.TIME_BRANCH_MINUS);
                         break;
 
                     case 8: //branch on plus
+                        //Set value 1 and only value 1 - NOT both values
                         status = fetchOperand(operands[1], operands[2], 1, 1);
                         if (status < 0) {
                             break;
                         }
 
+                        //This assumes that the next line contains an address
+                        // If value 1 is positive and nonzero
                         if (this.op1Value > 0) {
+
+                            //Go to the next line and get that address
+                            //THEN set the PC to that address
                             Main.setPC(Main.getHypoMemory(Main.getPC()));
                         } else {
+
+                            //Otherwise, skip the next line and proceed
                             Main.incrementPC();
                         }
                         Main.incrementClock(SystemConstants.TIME_BRANCH_PLUS);
                         break;
 
                     case 9: //branch on zero
+                        //Set value 1 and only value 1 - NOT both values
                         status = fetchOperand(operands[1], operands[2], 1, 1);
                         if (status < 0) {
                             break;
                         }
 
+                        //This assumes that the next line contains an address
+                        // If value 1 IS ZERO
                         if (this.op1Value == 0) {
+
+                            //Go to the next line and get that address
+                            //THEN set the PC to that address
                             Main.setPC(Main.getHypoMemory(Main.getPC()));
                         } else {
+                            //Otherwise, skip the next line and proceed
                             Main.incrementPC();
                         }
                         Main.incrementClock(SystemConstants.TIME_BRANCH_PLUS);
@@ -263,10 +318,14 @@ public class CPU {
             }
 
             printOperands(operands);
+
             this.cycles++;
 
             //DEBUGGING
             //this.halt = true;
+            
+            //String cycleNumber = String.format("Cycle number %d", cycles);
+            //Main.dumpMemory(cycleNumber, 0, 100);
         }
 
     }
@@ -337,7 +396,7 @@ public class CPU {
         //operandValue: integer describing which value variable to access, 1 or 2
 
         switch((int)mode) {
-            case 1: //register mode
+            case 1: //register mode - This mode will go to the specified GPR and retrieve its value
                 setOpAddress(operandAddr, -200); //Set the specified op address var to a negative num
                 
                 //
@@ -409,6 +468,8 @@ public class CPU {
                 //When in fetch mode 5, the assumption is that the
                 //location specified by the PC contains another memory location... 
                 if (Main.isValidProgramArea(getOpAddress(operandAddr))) {
+                    //Go to the memory address in the PC (AKA the next line)
+                    //Get whatever is stored there and set it as value either 1 or 2
                     setOpValue(operandValue, Main.getHypoMemory(getOpAddress(operandAddr)));
                 } else {
                     this.error = SystemConstants.ERROR_INVALID_ADDRESS;

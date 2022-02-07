@@ -44,7 +44,7 @@ public class Main {
         setPC(absoluteLoader.load()); //Set program counter to the AbsoluteLoader return value 
 
         //Proceed only if there has been no error from the AbsoluteLoader (error indicated by a negative PC)
-        if (pc > -1) {
+        if (pc > 0) {
             System.out.printf("%n$ Program counter set to %d...%n", pc);
 
             dumpMemory("Dump after loading user program", 0, 100);
@@ -149,6 +149,9 @@ public class Main {
 
 
     //Accessors
+
+    //This goes to a specified location in memory
+    //And returns whatever is stored there if the location is valid
     public static long getHypoMemory(long location) {
         if (location < hypoMemory.length && location > -1) {
             return hypoMemory[(int)location];
