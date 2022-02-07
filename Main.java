@@ -33,25 +33,31 @@ public class Main {
     //Main method
     public static void main(String[] args) {
 
+        //Informational messages
         System.out.printf("%n%n[HYPO]");
 
         initializeSystem();
         System.out.printf("%nSystem initialized...%n");
 
-        AbsoluteLoader absoluteLoader = new AbsoluteLoader();
-        setPC(absoluteLoader.load()); //Set program counter to the AL return value 
+        //Call the AbsoluteLoader
+        AbsoluteLoader absoluteLoader = new AbsoluteLoader(); //New instance
+        setPC(absoluteLoader.load()); //Set program counter to the AbsoluteLoader return value 
 
+        //Proceed only if there has been no error from the AbsoluteLoader (error indicated by a negative PC)
         if (pc > -1) {
             System.out.printf("%n$ Program counter set to %d...%n", pc);
 
             dumpMemory("Dump after loading user program", 0, 100);
 
+            //Instantiate a new CPU
             CPU cpu = new CPU();
-            cpu.cycle();
+            cpu.cycle(); //Perform the CPU cycle
 
+            //Dump memory after X CPU cycles
             String dumpAfterX = String.format("Dump after %d CPU cycle(s)", cpu.getCycles());
             dumpMemory(dumpAfterX, 0, 100);
 
+            //Display MAR, MBR, and IR values
             System.out.printf("%nMAR: %d, MBR: %d, IR: %d%n", mar, mbr, ir);
         }
 
@@ -60,7 +66,7 @@ public class Main {
     }
 
 
-    //Initialize the system
+    //Initialize the system - Set everything to 0
     public static void initializeSystem() {
         error = 0;
         hypoMemory = new long[SystemConstants.WORDSIZE];
@@ -81,6 +87,7 @@ public class Main {
         //startAddress = beginning address of memory to dump
         //size = used to calculate the last address of memory to dump
 
+        //Calculate last address
         long addr = startAddress;
         long endAddress = startAddress + size;
 
@@ -121,7 +128,7 @@ public class Main {
 
             for (int i = 0; i < 10; i++) {
                 //If the address is within the word size limit and the end address limit
-                //print it out
+                //print out its value
                 if (addr < hypoMemory.length && addr < endAddress) {
                     System.out.printf(" %d\t", hypoMemory[(int)addr]);
                 }

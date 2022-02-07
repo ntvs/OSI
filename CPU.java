@@ -1,5 +1,6 @@
 public class CPU {
     
+    //Instance variables
     private long cycles;
 
     private boolean halt;
@@ -11,6 +12,7 @@ public class CPU {
     private long op1Address;
     private long op2Address;
 
+    //Constructor - set everything to 0
     public CPU() {
         this.cycles = 0;
         this.halt = false;
@@ -272,6 +274,7 @@ public class CPU {
     public void updateRegisters() {
         long programCounter = Main.getPC();
 
+        //Proceed only if 0 <= PC <= 2999 - Non negative and within the valid program area
         if (0 <= programCounter && programCounter <= SystemConstants.VALID_PROGRAM_AREA) {
 
             Main.setMAR(programCounter); //set MAR to the value of the PC
@@ -285,29 +288,35 @@ public class CPU {
             System.out.printf("%n$ ERROR %d INVALID ADDRESS: The program counter points to a negative address or an address outside the valid program area.%n", error);
         }
 
-        Main.setIR(Main.getMBR()); //Get the MBR value and store it in the IR (Why even store it in the MBR if it can be stored directly in the IR?)
+        Main.setIR(Main.getMBR()); //Get the MBR value and store it in the IR
     }
 
     public long[] parseOperands() {
         //Separate the opcode from the word and leave the rest in remainder
         //Opcode tells CPU what mode it should be in
-        long opCode = (Main.getIR()) / 10000; //extracts the first digit from the word so 15060 / 10000 = 1.506 = opCode 1
+        long opCode = (Main.getIR()) / 10000; //extracts the first digit from the word. example: 15060 / 10000 = 1.506 = opCode 1
         long remainder = (Main.getIR()) % 10000; //extracts everything else except the first digit... so 5060
 
-        //Extract information about the first operand... for example, in 5060, op1=50 op2=60
+        //Extract information about the operands... for example, in 5060, op1=50 op2=60
         //Each one of the operands are split into 2 parts, first digit being the "mode" for that operand 
-        //Second digit of the operand is one of the GPRs
+        //Second digit of the operand is one of the GPRs (or usually 0 if a GPR is not used in that instance)
+
+        //Mathematically extract the first digit of op1 (op1Mode)
         long op1Mode = remainder / 1000;
         remainder = remainder % 1000;
 
+        //Mathematically extract the second digit of op1 (op1GPR)
         long op1GPR = remainder / 100;
         remainder = remainder % 100;
 
+        //Mathematically extract the first digit of op2 (op2Mode)
         long op2Mode = remainder / 10;
         remainder = remainder % 10;
 
+        //Mathematically extract the second digit of op2 (op2GPR)
         long op2GPR = remainder / 1;
 
+        //Return all the operands as an array
         long[] operands = {opCode, op1Mode, op1GPR, op2Mode, op2GPR};
 
         return operands;
