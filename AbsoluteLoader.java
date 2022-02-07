@@ -12,6 +12,7 @@ public class AbsoluteLoader {
 
     //Constructors
     public AbsoluteLoader(String fileName) {
+        input.close();
         setFile(fileName);
     }
     public AbsoluteLoader() {

@@ -45,11 +45,31 @@ public class CPU {
                 long result;
 
                 switch ((int)operands[0]) {
+                    
+                    //Issue a halt: this mode will stop the CPU
+
                     case 0: //halt
                         this.halt = true;
                         System.out.printf("%n$ %d HALT: Halt encountered.%n", error);
                         Main.incrementClock(SystemConstants.TIME_HALT);
                         break;
+
+
+                    // MATH/MOVE MODES 1-5:
+                    // Go to each one to read more
+                    //
+                    // 1: Addition
+                    //
+                    // 2: Subtraction
+                    //
+                    // 3: Multiplication
+                    //
+                    // 4: Division
+                    //
+                    // 5: MOVE
+
+                    //Addition mode: Add value 1 and value 2 together after setting them.
+                    // Then, based on what mode op1 is, write the difference to a location or discard it
 
                     case 1: //add
                         //Set value 1
@@ -68,19 +88,26 @@ public class CPU {
 
                         //If op1Mode = register mode
                         if (operands[1] == SystemConstants.FETCH_REGISTER) {
+
                             //Store the sum in the GPR specified by op1GPR
                             Main.setGPR(operands[2], result);
                         } else if (operands[1] == SystemConstants.FETCH_IMMEDIATE) {
+
                             //Do not store the sum anywhere and report an error
                             this.error = SystemConstants.ERROR_IMMEDIATE_DESTINATION;
                             System.out.printf("%n$ ERROR %d IMMEDIATE DESTINATION: Destination operand cannot be the immediate value when adding.%n", error);
                         } else {
+
                             //When in ANY other mode, store the sum in the address
                             //specified in the op1Address variable
                             Main.setHypoMemory(this.op1Address, result);
                         }
                         Main.incrementClock(SystemConstants.TIME_ADD);
                         break;
+
+
+                    //Subtraction mode: Subtract value 2 from value 1 after fetching them.
+                    // Then, based on what mode op1 is, write the difference to a location or discard it
 
                     case 2: //subtract
                         //Set value 1
@@ -99,13 +126,16 @@ public class CPU {
 
                         //If op1Mode = register mode
                         if (operands[1] == SystemConstants.FETCH_REGISTER) {
+
                             //Store the difference in the GPR specified by op1GPR
                             Main.setGPR(operands[2], result);
                         } else if (operands[1] == SystemConstants.FETCH_IMMEDIATE) {
+
                             //Do not store the sum anywhere and report an error
                             this.error = SystemConstants.ERROR_IMMEDIATE_DESTINATION;
                             System.out.printf("%n$ ERROR %d IMMEDIATE DESTINATION: Destination operand cannot be the immediate value when subtracting.%n", error);
                         } else {
+
                             //When in ANY other mode, store the sum in the address
                             //specified in the op1Address variable
                             Main.setHypoMemory(this.op1Address, result);
@@ -113,40 +143,61 @@ public class CPU {
                         Main.incrementClock(SystemConstants.TIME_SUBTRACT);
                         break;
                     
+
+                    //Multiplication mode: multiply value 1 by value 2 after fetching them.
+                    // Then, based on what mode op1 is, write the result to a location or discard it
+
                     case 3: //multiply
+                        //Set value 1
                         status = fetchOperand(operands[1], operands[2], 1, 1);
                         if (status < 0) {
                             break;
                         }
+                        //Set value 1
                         status = fetchOperand(operands[3], operands[4], 2, 2);
                         if (status < 0) {
                             break;
                         }
                         
+                        //Find their product
                         result = this.op1Value * this.op2Value;
 
                         //If op1Mode = register mode
                         if (operands[1] == SystemConstants.FETCH_REGISTER) {
+
+                            //Store the result in the GPR specified by op1GPR
                             Main.setGPR(operands[2], result);
                         } else if (operands[1] == SystemConstants.FETCH_IMMEDIATE) {
+
+                            //Do not store the result anywhere and report an error
                             this.error = SystemConstants.ERROR_IMMEDIATE_DESTINATION;
                             System.out.printf("%n$ ERROR %d IMMEDIATE DESTINATION: Destination operand cannot be the immediate value when multiplying.%n", error);
                         } else {
+
+                            //When in ANY other mode, store the result in the address
+                            //specified in the op1Address variable
                             Main.setHypoMemory(this.op1Address, result);
                         }
                         Main.incrementClock(SystemConstants.TIME_MULTIPLY);
                         break;
                     
+
+                    //Division mode: divide value 1 by value 2 after fetching them.
+                    // Then, based on what mode op1 is, write the result to a location or discard it
+
                     case 4: //division
+                        //Set value 1
                         status = fetchOperand(operands[1], operands[2], 1, 1);
                         if (status < 0) {
                             break;
                         }
+                        //Set value 1
                         status = fetchOperand(operands[3], operands[4], 2, 2);
                         if (status < 0) {
                             break;
                         }
-                        
+
+                        //Check value 2 for 0, as division by 0 is impossible
                         if (op2Value != 0) {
                             result = this.op1Value / this.op2Value;
                         } else {
@@ -157,16 +208,27 @@ public class CPU {
 
                         //If op1Mode = register mode
                         if (operands[1] == SystemConstants.FETCH_REGISTER) {
+
+                            //Store the result in the GPR specified by op1GPR
                             Main.setGPR(operands[2], result);
                         } else if (operands[1] == SystemConstants.FETCH_IMMEDIATE) {
+
+                            //Do not store the result anywhere and report an error
                             this.error = SystemConstants.ERROR_IMMEDIATE_DESTINATION;
                             System.out.printf("%n$ ERROR %d IMMEDIATE DESTINATION: Destination operand cannot be the immediate value when dividing.%n", error);
                         } else {
+
+                            //When in ANY other mode, store the result in the address
+                            //specified in the op1Address variable
                             Main.setHypoMemory(this.op1Address, result);
                         }
                         Main.incrementClock(SystemConstants.TIME_DIVIDE);
                         break;
                     
+
+                    //Move mode: set value 1 equal to whatever value 2 is after fetching them
+                    // Then, based on what mode op1 is, write value 1 to a location or discard it
+
                     case 5: //move
                         //Set value 1
                         status = fetchOperand(operands[1], operands[2], 1, 1);
@@ -183,13 +245,16 @@ public class CPU {
 
                         //If op1Mode = register mode
                         if (operands[1] == SystemConstants.FETCH_REGISTER) {
+
                             //Store value 1 in the GPR specified by op1GPR
                             Main.setGPR(operands[2], this.op1Value);
                         } else if (operands[1] == SystemConstants.FETCH_IMMEDIATE) {
+
                             //Do not store value 1 anywhere and report an error
                             this.error = SystemConstants.ERROR_IMMEDIATE_DESTINATION;
                             System.out.printf("%n$ ERROR %d IMMEDIATE DESTINATION: Destination operand cannot be the immediate value when moving.%n", error);
                         } else {
+
                             //When in ANY other mode, store value 1 in the address
                             //specified in the op1Address variable
                             Main.setHypoMemory(this.op1Address, this.op1Value);
@@ -197,7 +262,8 @@ public class CPU {
                         Main.incrementClock(SystemConstants.TIME_MOVE);
                         break;
 
-                    //BRANCH MODES 6-9
+
+                    // BRANCH MODES 6-9
                     // 
                     // 6: Assumes no inputs - only looks at program counter
                     //      - Do nothing and just go to the next line
@@ -283,6 +349,14 @@ public class CPU {
                         Main.incrementClock(SystemConstants.TIME_BRANCH_PLUS);
                         break;
 
+
+                    // STACK MODES 10-11 - not yet implemented
+                    // 
+                    // 10.
+                    //
+                    // 11.
+                    //
+
                     case 10: //push if stack is not full
                         status = fetchOperand(operands[1], operands[2], 1, 1);
                         if (status < 0) {
@@ -298,6 +372,10 @@ public class CPU {
                         }
                         System.out.printf("%n$ Case 11: pop from stack.%n");
                         break;
+
+
+                    // SYSTEM MODE 12 - not yet implemented
+                    // 
 
                     case 12:
                         long systemCallID = Main.getHypoMemory(Main.getPC());
@@ -396,22 +474,50 @@ public class CPU {
         //operandValue: integer describing which value variable to access, 1 or 2
 
         switch((int)mode) {
+            
+            // GPR MODES 1-4: these modes deal with GPRs
+            //
+            // 1: Read and write to a GPR when performing math operations or moves (op1)
+            //
+            // 2: A GPR contains a memory location. Retrieve your value from there
+            //      - Read and write to that location when performing math operations or moves (op1)
+            //
+            // 3: A GPR contains a memory location. Retrieve your value from there
+            //      - Read and write to that location when performing math operations or moves (op1)
+            //      - Increment that GPR's value after using it
+            //
+            // 4: A GPR contains a memory location. Retrieve your value from there
+            //      - Read and write to that location when performing math operations or moves (op1)
+            //      - Decrement that GPR's value after using it
+
+            //Register mode: This mode retrieves from a GPR but will also lock you into writing 
+            //to the same GPR for the current cycle (op1).
+
             case 1: //register mode - This mode will go to the specified GPR and retrieve its value
                 setOpAddress(operandAddr, -200); //Set the specified op address var to a negative num
                 
-                //
-                setOpValue(operandValue, Main.getGPR(gpr)); //Set the specified op value var to the value that is in the specified GPR
+                //Set the specified op value var to the value that is in the specified GPR
+                setOpValue(operandValue, Main.getGPR(gpr));
                 break;
+
+
+            //Register deferred mode: This mode retrieves a location from a GPR 
+            //but will also lock you into writing to the same memory location for the current cycle (op1).
+            //Use it when you want to fetch a memory location from a GPR
 
             case 2: //register deferred mode - "Op addr in GPR and value in memory"
                 
                 //In this case, there is something inside the GPR specified by the var gpr
                 //Retrieve that value
                 //Put it inside op address 1 or 2
-                //Is it possible to store a value in the GPR beyond 2999?
                 setOpAddress(operandAddr, Main.getGPR(gpr));
 
+                //When in fetch mode 2, the assumption is that the
+                //specified GPR contains another memory location...
                 if (Main.isValidProgramArea(getOpAddress(operandAddr))) {
+
+                    //Go to the memory address that the GPR points to
+                    //Get whatever is stored there and set it as value either 1 or 2
                     setOpValue(operandValue, Main.getHypoMemory(operandAddr));
                 } else {
                     this.error = SystemConstants.ERROR_INVALID_ADDRESS;
@@ -420,6 +526,14 @@ public class CPU {
                 }
                 break;
 
+
+            //Autoincrement mode: SAME AS MODE 2 - This mode retrieves a location from a GPR 
+            //but will also lock you into writing to the same memory location for the current cycle (op1).
+            //Use it when you want to fetch a memory location from a GPR
+
+            //However, after retrieving an address from said GPR, move the contained address to the one after it
+            //So now the GPR will contain the address directly after the address it previously contained
+
             case 3: //autoincrement mode (Op addr in GPR and value in memory)
                 
                 //In this case, there is something inside the GPR specified by the var gpr
@@ -427,9 +541,16 @@ public class CPU {
                 //Put it inside op address 1 or 2
                 setOpAddress(operandAddr, Main.getGPR(gpr));
 
+                //When in fetch mode 3, the assumption is that the
+                //specified GPR contains another memory location...
                 if (Main.isValidProgramArea(getOpAddress(operandAddr))) {
+
+                    //Go to the memory address that the GPR points to
+                    //Get whatever is stored there and set it as value either 1 or 2
                     setOpValue(operandValue, Main.getHypoMemory(getOpAddress(operandAddr)));
 
+                    //Now, increment the value of that GPR by 1
+                    //So essentially, move the address contained by the GPR to the next address after it
                     Main.setGPR(gpr, (Main.getGPR(gpr))+1);
 
                 } else {
@@ -437,6 +558,14 @@ public class CPU {
                     System.out.printf("%n$ ERROR %d INVALID ADDRESS: GPR %d is invalid in case 3.%n", error, operandAddr);
                 }
                 break;
+
+
+            //Autodecrement mode: SAME AS MODE 3 - This mode retrieves a location from a GPR 
+            //but will also lock you into writing to the same memory location for the current cycle (op1).
+            //Use it when you want to fetch a memory location from a GPR
+
+            //However, after retrieving an address from said GPR, move the contained address to the one before it
+            //So now the GPR will contain the address directly before the address it previously contained
 
             case 4: //autodecrement mode 
                 Main.setGPR(gpr, (Main.getGPR(gpr))-1); //decrement register value by 1
@@ -456,6 +585,21 @@ public class CPU {
                 }
                 break;
 
+
+            // LINE MODES 5-6: these modes deal with the following line
+            //
+            // 5: The next line contains a memory location. Retrieve your value from there
+            //      - Read and write to that location when performing math operations or moves (op1)
+            //
+            // 6: The next line contains the value you want to use. Retrieve it directly from there
+            //      - Cannot write to the next line when performing math operations or moves (op1)
+
+            //Direct mode: this mode looks at the next line. It assumes whatever value contained in the memory address
+            // in the next line is another memory address. Then, it will go to that location and retrieve whatever
+            // value is there.
+            // This mode will lock you into writing to the same memory location for the current cycle (op1).
+            // Use it when you want to fetch from a remote memory location anywhere 
+
             case 5: //direct mode - "Op address is in the instruction that is in the program counter"
                 //Do need to check if PC value is valid because validation is already performed when updating the PC value
                 
@@ -468,6 +612,7 @@ public class CPU {
                 //When in fetch mode 5, the assumption is that the
                 //location specified by the PC contains another memory location... 
                 if (Main.isValidProgramArea(getOpAddress(operandAddr))) {
+
                     //Go to the memory address in the PC (AKA the next line)
                     //Get whatever is stored there and set it as value either 1 or 2
                     setOpValue(operandValue, Main.getHypoMemory(getOpAddress(operandAddr)));
@@ -476,6 +621,12 @@ public class CPU {
                     System.out.printf("%n$ ERROR %d INVALID ADDRESS: Op address %d contains %d in case 5.%n", error, operandAddr, getOpAddress(operandAddr));
                 }
                 break;
+
+            
+            //Immediate mode: this mode looks at the next line. It assumes whatever value contained in the memory address
+            // in the next line is the value you want to use.
+            // Use it when you want to fetch a value directly from the next line
+            // This mode locks you from writing (op1) because the CPU will not allow writing in immediate mode. 
 
             case 6: //immediate mode - "Op value is in the instruction"
                 //Do need to check if PC value is valid because validation is already performed when updating the PC value
