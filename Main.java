@@ -1,10 +1,4 @@
-import java.util.*;
-import java.io.FileNotFoundException;
-
 public class Main {
-
-    //SCANNER - USER INPUT
-    public static Scanner input = new Scanner(System.in);
 
     //Machine error variable (Separate from CPU error variable)
     private static long error;
@@ -27,7 +21,7 @@ public class Main {
     private static long ir; //Instruction register
     private static long psr; //Processor status register
     private static long pc; //Program counter
-    private static long sp; 
+    private static long sp; //Stack pointer
 
 
     //Main method
@@ -41,7 +35,9 @@ public class Main {
 
         //Call the AbsoluteLoader
         AbsoluteLoader absoluteLoader = new AbsoluteLoader(); //New instance
-        setPC(absoluteLoader.load()); //Set program counter to the AbsoluteLoader return value 
+        pc = absoluteLoader.load(); //Set program counter to the AbsoluteLoader return value
+                                    //Note that the mutator is not used. This is to suppress
+                                    //the program counter error message if the file is not found 
 
         //Proceed only if there has been no error from the AbsoluteLoader (error indicated by a negative PC)
         if (pc > 0) {
@@ -153,6 +149,9 @@ public class Main {
     //This goes to a specified location in memory
     //And returns whatever is stored there if the location is valid
     public static long getHypoMemory(long location) {
+
+        //Note that the isValidProgramArea method is not used.
+        //This is because accessing memory outside the valid area may be needed
         if (location < hypoMemory.length && location > -1) {
             return hypoMemory[(int)location];
         } else {
@@ -195,6 +194,9 @@ public class Main {
     }
     
     public static void setHypoMemory(long location, long instruction) {
+
+        //Note that the isValidProgramArea method is not used.
+        //This is because allocating memory outside the valid area may be needed
         if (location < hypoMemory.length && location > -1) {
             hypoMemory[(int)location] = instruction;
         } else {
@@ -222,8 +224,9 @@ public class Main {
         ir = word;
     }
 
+    //Sets the program counter if the provided address is within the valid program area
     public static void setPC(long addr) {
-        if (addr < SystemConstants.VALID_PROGRAM_AREA && addr > -1) {
+        if (isValidProgramArea(addr)) {
             pc = addr;
         } else {
             error = SystemConstants.ERROR_INVALID_ADDRESS;

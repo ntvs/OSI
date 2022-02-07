@@ -1,16 +1,16 @@
 public class CPU {
     
     //Instance variables
-    private long cycles;
+    private long cycles; //Holds the number of cycles that has occurred
 
-    private boolean halt;
-    private long error;
+    private boolean halt; //halt status
+    private long error; //error status
 
-    private long op1Value;
-    private long op2Value;
+    private long op1Value; //final value container of op 1 used for CPU operations
+    private long op2Value; //final value container of op 2 used for CPU operations
 
-    private long op1Address;
-    private long op2Address;
+    private long op1Address; //address container used to determine value 1
+    private long op2Address; //address container used to determine value 2
 
     //Constructor - set everything to 0
     public CPU() {
@@ -23,6 +23,7 @@ public class CPU {
         this.op2Address = 0;
     }
 
+    //CPU cycle method/switch statement - performs CPU cycles until an error occurs or halt is issued
     public void cycle() {
 
         //Cycle the CPU until state is set to halt or an error is set
@@ -408,6 +409,7 @@ public class CPU {
 
     }
 
+    //Updates MAR, MBR, IR, and PC at the beginning of every CPU cycle
     public void updateRegisters() {
         long programCounter = Main.getPC();
 
@@ -428,6 +430,7 @@ public class CPU {
         Main.setIR(Main.getMBR()); //Get the MBR value and store it in the IR
     }
 
+    //Splits 5-6 digit line from the IR into an array of 5 separate values
     public long[] parseOperands() {
         //Separate the opcode from the word and leave the rest in remainder
         //Opcode tells CPU what mode it should be in
@@ -459,6 +462,7 @@ public class CPU {
         return operands;
     }
 
+    //Simple array printing method to print the array of operands for debugging
     public void printOperands(long[] operands) {
         System.out.printf("%nOperands array: ");
         for (int i = 0; i < 5; i++) {
@@ -467,6 +471,8 @@ public class CPU {
         System.out.printf("%n");
     }
     
+    //Method/switch statement that can set value 1 or value 2 that the CPU uses for operations
+    //based on the mode passed into it
     public long fetchOperand(long mode, long gpr, int operandAddr, int operandValue) {
         //mode: long describing which fetch mode to use
         //gpr: long describing which GPR to access

@@ -8,7 +8,7 @@ public class AbsoluteLoader {
     public Scanner input = new Scanner(System.in);
     public Scanner fileReader;
 
-    private File programFile;
+    private File programFile; //contains the program file
 
     //Constructors
     public AbsoluteLoader(String fileName) {
@@ -23,23 +23,28 @@ public class AbsoluteLoader {
         setFile(fileName);
     }
 
-    
+    //Creates file object based on a provided string
     public void setFile(String fileName) {
         programFile = new File(fileName);
     }
 
-
+    //Loads a program file into the valid program area in main memory
     public long load() {
         
+        //Checks to see if file exits
         try {
+            //If yes, proceed with scanning the file
             this.fileReader = new Scanner(programFile);
         } catch(FileNotFoundException e) {
+
+            //If no, print the error
             System.out.printf("%n$ The file \"%s\" was not found.%n", programFile.getAbsolutePath());
             return SystemConstants.ERROR;
         }
 
-        int lineCount = 0;
+        int lineCount = 0; //Keeps track of how many lines read for error purposes
 
+        //Read the file until there are no more lines
         while(fileReader.hasNextLine()) {
             String data = fileReader.nextLine(); //Grab the entire line
             String[] contents = data.split(" "); //Each line should have 2 values separated by a space. Split the line by a space
@@ -52,9 +57,9 @@ public class AbsoluteLoader {
                 long addr = Long.parseLong(contents[0]);
                 long instruction = Long.parseLong(contents[1]);
 
-                //If the address is greater than or equal to 0, go to that memory location and load the instruction
+                //If the address is within the valid program area, go to that memory location and load the instruction
                 //Otherwise if the address is -1 or lower, the end of the program has been reached
-                if (addr >= 0) {
+                if (Main.isValidProgramArea(addr)) {
                     
                     //Each instruction or number can only be a maximum of 6 digit. If not, the instruction is invalid
                     if(instruction > 999999) {
@@ -75,9 +80,10 @@ public class AbsoluteLoader {
                 return SystemConstants.ERROR;
             }
 
-            lineCount++;
+            lineCount++; //Increment the line count
         }
 
+        //Close file reader and return OK if there is no error
         fileReader.close();
         return SystemConstants.OK;
     } 
