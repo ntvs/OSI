@@ -1,3 +1,7 @@
+//Nick Ribeiro
+//Homework 1
+//02-07-22
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
