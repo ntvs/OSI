@@ -34,8 +34,8 @@ public class Main {
         //Informational messages
         System.out.printf("%n%n[HYPO]");
 
+        //Initialize everything to 0
         initializeSystem();
-        System.out.printf("%nSystem initialized...%n");
 
         //Call the AbsoluteLoader
         AbsoluteLoader absoluteLoader = new AbsoluteLoader(); //New instance
@@ -78,6 +78,8 @@ public class Main {
         psr = 0;
         pc = 0;
         sp = 0;
+
+        System.out.printf("%nSystem initialized...%n");
     }
 
 

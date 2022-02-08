@@ -16,6 +16,8 @@ Created:
         4. Checks to see if the line is formatted correctly, if address is out of range, and if the instruction is 6 digits or less
         5. Stores the instructions at the specified indices in the memory array
         6. Returns value that the program counter should be set to (the next instruction)
+    - Problems:
+        1. Scanner does not close for every case
 
 3. Class CPU
     - Constructor
