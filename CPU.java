@@ -1,7 +1,3 @@
-//Nick Ribeiro
-//Homework 1
-//02-07-22
-
 public class CPU {
     
     //Instance variables
