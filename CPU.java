@@ -266,18 +266,22 @@ public class CPU {
 
                     // BRANCH MODES 6-9
                     // 
-                    // 6: Assumes no inputs - only looks at program counter
-                    //      - Do nothing and just go to the next line
+                    // 6: Assumes 1 input - looks at the value stored at the memory address that the PC is pointing to
+                    //      - So it will look at the next line and assume a memory address is stored there
+                    //      - Then it will jump to the memory location specified
                     //
-                    // 7: Only looks at the value of operand 1 & PC
+                    // 7: Looks at the value of operand 1 & value stored at memory address that PC points to
+                    //      - One of the next lines must specify an address to jump to
                     //      - IF value 1 is negative and nonzero, reset the PC to a specified value
                     //      - otherwise, skip the next line and proceed
                     //
-                    // 8: Only looks at the value of operand 1 & PC
+                    // 8: Looks at the value of operand 1 & value stored at memory address that PC points to
+                    //      - One of the next lines must specify an address to jump to
                     //      - IF value 1 is positive and nonzero, reset the PC to a specified value
                     //      - otherwise, skip the next line and proceed
                     //
-                    // 8: Only looks at the value of operand 1 & PC
+                    // 8: Looks at the value of operand 1 & value stored at memory address that PC points to
+                    //      - One of the next lines must specify an address to jump to
                     //      - IF value 1 is ZERO, reset the PC to a specified value
                     //      - otherwise, skip the next line and proceed
 
@@ -318,8 +322,11 @@ public class CPU {
                         // If value 1 is positive and nonzero
                         if (this.op1Value > 0) {
 
-                            //Go to the next line and get that address
+                            //Go to the next line and assume it contains an address
+                            //get that address
                             //THEN set the PC to that address
+                            //This is the location the program will jump to
+                            //if value 1 is positive and nonzero
                             Main.setPC(Main.getHypoMemory(Main.getPC()));
                         } else {
 
