@@ -1,0 +1,7 @@
+main:       Function
+            Origin:      10
+count:      Long:        0
+Loop:       Add:         count,1
+            Branch:      Loop
+            Halt:
+            End:         Loop  

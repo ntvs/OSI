@@ -1,0 +1,21 @@
+main:       Function
+            Origin:      0
+evensum:    Long:        0
+count:      Long:        100
+temp:       Long:        0
+final:      Long:        0
+Loop:       Add:         evensum,count
+            Subtract:    count,2
+            BrOnPlus:    count,Loop
+Calc:       Move:        GPR0,100
+            Move:        GPR1,5
+            Move:        temp,550
+            Subtract:    temp,evensum
+            Divide:      temp,GPR0
+            Multiply:    temp,GPR1
+            BrOnMinus:   temp,Final1
+            Move:        final,2
+            Halt:
+Final1:     Move:        final,1
+            Halt:
+            End:         Loop
